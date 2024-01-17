@@ -1,0 +1,44 @@
+# Ignore build files
+build/
+bin/
+lib/
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore compiled files
+*.o
+*.out
+*.exe
+*.dll
+
+# Ignore Makefiles
+Makefile
+CMakeLists.txt.user
+
+# Ignore generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Ignore IDE-specific files
+.idea/
+*.suo
+*.user
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore miscellaneous files
+.DS_Store
+Thumbs.db
+
+# Ignore C++ specific files
+*.log
+*.log.*
+*.db
+*.sqlite
+*.sqlite3
