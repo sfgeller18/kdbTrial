@@ -9,6 +9,8 @@ execute_process(
 
 add_definitions(-D__KDB__)
 add_definitions(-D__YAHOO__)
+#add_definitions(-D__JSON__)
+
 
 find_package(CURL REQUIRED)
 

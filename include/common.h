@@ -7,5 +7,6 @@
 #endif
 
 #ifdef __YAHOO__
-#include "yahooToString.hpp"
+#include "yahoo.hpp"
 #endif
+

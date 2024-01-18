@@ -12,6 +12,7 @@ inline std::time_t dateToUnix(const std::string& dateStr) {
     ss >> std::get_time(&tm, "%Y-%m-%d");
 
     if (ss.fail()) {
+        std::cout<<dateStr<<std::endl;
         std::cerr << "Failed to parse the date." << std::endl;
         return -1; // Error indicator
     }
