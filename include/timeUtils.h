@@ -60,7 +60,7 @@ std::string unixToString(const std::string& unixTimestamp) {
 
 #ifdef __KDB__
 
-#include <k.h>
+#include <KDB/k.h>
 
 F zu(I u){return u/8.64e4-10957;}   // kdb+ datetime from unix
 I uz(F f){return 86400*(f+10957);}  // unix from kdb+ datetime

@@ -9,7 +9,7 @@
 #include <csvUtils.hpp>
 
 #ifdef __KDB__
-#include <k.h>
+#include <KDB/k_yahoo.h>
 #endif
 
 #ifdef __JSON__
@@ -18,24 +18,6 @@ using json = nlohmann::json;
 #endif
 
 #define YAHOO_HEADER_LEN 587
-
-enum ColumnType { VOLUME, OPEN, HIGH, LOW, CLOSE, UNKNOWN_TYPE };
-inline ColumnType mapColumnType(const std::string& columnName) {
-    if (columnName == "volume") {
-        return VOLUME;
-    } else if (columnName == "open") {
-        return OPEN;
-    } else if (columnName == "high") {
-        return HIGH;
-    } else if (columnName == "low") {
-        return LOW;
-    } else if (columnName == "close") {
-        return CLOSE;
-    } else {
-        // Handle unknown column type if necessary
-        return UNKNOWN_TYPE; // Add UNKNOWN_TYPE to the enum if needed
-    }
-}
 
 
 namespace yahoo {
@@ -92,7 +74,7 @@ public:
     void saveCSV(const std::string& filePath);
     #endif
     #ifdef __KDB__
-    K toKDB(const std::string& tableName);
+    K toKDB(const int& handle, const std::string& tableName);
     #endif
 
     std::string getData() {
@@ -199,7 +181,7 @@ void ticker::saveCSV(const std::string& filePath) {
 #endif
 
 #ifdef __KDB__
-K ticker::toKDB(const std::string& tableName) {
+K ticker::toKDB(const int& handle, const std::string& tableName) {
     std::string body = message.getBody();
     size_t index1 = body.find("timestamp") + 11;
     size_t index2 = body.find("],\"");
@@ -210,65 +192,10 @@ K ticker::toKDB(const std::string& tableName) {
     std::string timestamps = body.substr(index1, index2 - index1);
     timestamps += "]";
     std::vector<std::string> timestampArray = csv::arrToVec<std::string>(timestamps);
-    std::cout << timestampArray[0] << std::endl;
 
     std::string data = body.substr(index3, index4 - index3 + 1);
 
-    std::vector<std::pair<std::string, std::string>> cols = csv::findCols(data);
-
-    // Create the q table
-    std::vector<std::string> colNameList;
-
-
-        K volumeCol, openCol, highCol, lowCol, closeCol;
-for (auto col : cols) {
-    if (col.first == "") {
-        continue;
-    }
-
-    ColumnType colType = mapColumnType(col.first);
-
-    switch (colType) {
-        case VOLUME: {
-            std::vector<int> tempCol = csv::arrToVec<int>(col.second);
-            volumeCol = ktn(KI, tempCol.size());
-            for (size_t i = 0; i < tempCol.size(); i++) {
-                kI(volumeCol)[i] = tempCol[i];
-            }
-            break;
-        }
-        case OPEN:
-        case HIGH:
-        case LOW:
-        case CLOSE: {
-            std::vector<double> tempCol = csv::arrToVec<double>(col.second);
-            K& currentCol = (colType == OPEN) ? openCol : (colType == HIGH) ? highCol : (colType == LOW) ? lowCol : closeCol;
-            currentCol = ktn(KF, tempCol.size());
-            for (size_t i = 0; i < tempCol.size(); i++) {
-                kF(currentCol)[i] = tempCol[i];
-            }
-            break;
-        }
-    }
-}
-
-    
-    
-    K colList = ktn(KS, 5);
-    kS(colList)[0] = ss((S)"VOLUME");
-    kS(colList)[1] = ss((S)"OPEN");
-    kS(colList)[2] = ss((S)"HIGH");
-    kS(colList)[3] = ss((S)"LOW");
-    kS(colList)[4] = ss((S)"CLOSE");
-
-    K tickerTable = xD(colList, knk(5, volumeCol, openCol, highCol, lowCol, closeCol));
-    r0(volumeCol);
-    r0(openCol);
-    r0(highCol);
-    r0(lowCol);
-    r0(closeCol);
-
-    return tickerTable;
+    return kdb::parse(handle, data);
 }
 #endif
 
